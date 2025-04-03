@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,12 +29,14 @@ import {
 import { format } from 'date-fns';
 import { getLogs } from '@/services/api';
 
+type ActionType = 'placement' | 'retrieval' | 'rearrangement' | 'disposal' | undefined;
+
 const Logs = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [startDate, setStartDate] = useState<Date | undefined>(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)); // 7 days ago
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
-  const [actionType, setActionType] = useState<string | undefined>(undefined);
+  const [actionType, setActionType] = useState<ActionType>(undefined);
   const [itemId, setItemId] = useState('');
   const [userId, setUserId] = useState('');
   const [logs, setLogs] = useState<Array<any>>([]);
@@ -103,13 +104,11 @@ const Logs = () => {
     });
   };
   
-  // Helper function to format date for display
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return format(date, 'yyyy-MM-dd HH:mm:ss');
   };
   
-  // Helper function to get action color
   const getActionColor = (action: string) => {
     switch (action) {
       case 'placement':
@@ -134,7 +133,6 @@ const Logs = () => {
         </p>
       </div>
       
-      {/* Search Filters */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -192,7 +190,10 @@ const Logs = () => {
             
             <div className="space-y-2">
               <Label>Action Type</Label>
-              <Select value={actionType} onValueChange={setActionType}>
+              <Select 
+                value={actionType} 
+                onValueChange={(value) => setActionType(value as ActionType)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All action types" />
                 </SelectTrigger>
@@ -263,7 +264,6 @@ const Logs = () => {
         </CardContent>
       </Card>
       
-      {/* Results Table */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -320,7 +320,6 @@ const Logs = () => {
         </CardContent>
       </Card>
       
-      {/* Analytics Insights */}
       <Card className="bg-card/50">
         <CardHeader>
           <CardTitle>Log Analytics</CardTitle>
