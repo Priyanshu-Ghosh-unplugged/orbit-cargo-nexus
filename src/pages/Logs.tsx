@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -198,7 +199,7 @@ const Logs = () => {
                   <SelectValue placeholder="All action types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All action types</SelectItem>
+                  <SelectItem value="all">All action types</SelectItem>
                   <SelectItem value="placement">Placement</SelectItem>
                   <SelectItem value="retrieval">Retrieval</SelectItem>
                   <SelectItem value="rearrangement">Rearrangement</SelectItem>
