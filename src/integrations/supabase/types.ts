@@ -9,7 +9,153 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          item_id: string | null
+          item_name: string | null
+          location: string | null
+          module: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          item_id?: string | null
+          item_name?: string | null
+          location?: string | null
+          module?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          item_id?: string | null
+          item_name?: string | null
+          location?: string | null
+          module?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      cargo_items: {
+        Row: {
+          category: string
+          created_at: string | null
+          created_by: string | null
+          expiry_date: string | null
+          id: string
+          location: string
+          module: string
+          name: string
+          section: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          created_by?: string | null
+          expiry_date?: string | null
+          id?: string
+          location: string
+          module: string
+          name: string
+          section: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          expiry_date?: string | null
+          id?: string
+          location?: string
+          module?: string
+          name?: string
+          section?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string | null
+          preferred_module: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          email?: string | null
+          id: string
+          name?: string | null
+          preferred_module?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string | null
+          preferred_module?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      waste_items: {
+        Row: {
+          amount: number
+          created_at: string | null
+          created_by: string | null
+          disposal_date: string | null
+          id: string
+          status: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          created_by?: string | null
+          disposal_date?: string | null
+          id?: string
+          status?: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          disposal_date?: string | null
+          id?: string
+          status?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

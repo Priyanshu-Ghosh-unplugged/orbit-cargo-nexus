@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -17,6 +17,7 @@ import { User, Settings, ShieldCheck, Clock, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { supabase } from '@/integrations/supabase/client';
 
 type UserProfileProps = {
   open: boolean;
@@ -24,20 +25,36 @@ type UserProfileProps = {
 };
 
 const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshProfile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     name: user?.name || '',
     email: user?.email || '',
     bio: user?.bio || 'Astronaut and cargo specialist with 5 years of ISS experience.',
-    preferredModule: 'Columbus',
+    preferredModule: user?.profile?.preferred_module || 'Columbus',
     notificationPreferences: {
       email: true,
       app: true,
       criticalAlerts: true
     }
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormState({
+        name: user.name || '',
+        email: user.email || '',
+        bio: user.bio || 'Astronaut and cargo specialist with 5 years of ISS experience.',
+        preferredModule: user.profile?.preferred_module || 'Columbus',
+        notificationPreferences: {
+          email: true,
+          app: true,
+          criticalAlerts: true
+        }
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -47,22 +64,42 @@ const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
     }));
   };
 
-  const handleSaveProfile = () => {
-    // In a real app, this would save to backend
-    toast({
-      title: "Profile updated",
-      description: "Your profile information has been saved."
-    });
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          name: formState.name,
+          bio: formState.bio,
+          preferred_module: formState.preferredModule
+        })
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
+      // Refresh the user profile data
+      await refreshProfile();
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile information has been saved."
+      });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Update failed",
+        description: "There was a problem updating your profile.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     onOpenChange(false);
     navigate('/login');
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out."
-    });
   };
 
   return (
@@ -74,10 +111,10 @@ const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
 
         <div className="flex flex-col items-center mb-6">
           <Avatar className="h-24 w-24 mb-4">
-            <AvatarImage src={user?.avatarUrl} alt={user?.name} />
-            <AvatarFallback className="text-2xl">{user?.name?.charAt(0)}</AvatarFallback>
+            <AvatarImage src={user?.avatarUrl} alt={user?.name || ''} />
+            <AvatarFallback className="text-2xl">{user?.name?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
-          <h2 className="text-lg font-bold">{user?.name}</h2>
+          <h2 className="text-lg font-bold">{user?.name || 'User'}</h2>
           <p className="text-muted-foreground">{user?.role || 'Astronaut'}</p>
         </div>
 
@@ -116,6 +153,7 @@ const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
                   type="email" 
                   value={formState.email} 
                   onChange={handleInputChange}
+                  disabled
                 />
               </div>
             </div>
