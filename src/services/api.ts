@@ -13,25 +13,62 @@ async function handleRequest<T>(
   options?: RequestInit
 ): Promise<ApiResponse<T>> {
   try {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      return { error: errorData.message || 'An error occurred' };
-    }
-    
-    const data = await response.json();
-    return { data };
+    // For demo purposes, we'll return mock data instead of making actual API calls
+    return getMockData(url);
   } catch (error) {
     console.error('API request failed:', error);
     return { error: 'Network error' };
   }
+}
+
+// Helper function to return appropriate mock data based on the endpoint
+function getMockData<T>(url: string): ApiResponse<T> {
+  // Simulate API delay
+  // In a real implementation, this would be replaced with actual fetch calls
+  
+  if (url.includes('/api/placement')) {
+    return {
+      data: {
+        module: "Columbus", 
+        section: "C4", 
+        location: "Shelf-3", 
+        confidence: 92,
+        alternatives: [
+          {module: "Destiny", section: "D2", location: "Cabinet-1", confidence: 87},
+          {module: "Harmony", section: "H5", location: "Drawer-9", confidence: 73}
+        ]
+      } as unknown as T
+    };
+  }
+  
+  if (url.includes('/api/search')) {
+    return {
+      data: [
+        {itemId: "ISS-00123", name: "Medical Kit", module: "Columbus", section: "C2", location: "Drawer-5"},
+        {itemId: "ISS-00456", name: "Food Container", module: "Unity", section: "U3", location: "Cabinet-2"}
+      ] as unknown as T
+    };
+  }
+  
+  if (url.includes('/api/waste/identify')) {
+    return {
+      data: getMockWasteData() as unknown as T
+    };
+  }
+  
+  if (url.includes('/api/logs')) {
+    return {
+      data: [
+        {timestamp: "2025-04-03T14:32:00Z", userId: "user1", actionType: "placement", itemId: "ISS-00123", itemName: "Medical Kit", location: "Columbus/C2/Drawer-5"},
+        {timestamp: "2025-04-02T10:15:00Z", userId: "user2", actionType: "retrieval", itemId: "ISS-00456", itemName: "Food Container", location: "Unity/U3/Cabinet-2"}
+      ] as unknown as T
+    };
+  }
+  
+  // Default response
+  return {
+    data: {success: true} as unknown as T
+  };
 }
 
 // Placement Recommendations API
@@ -75,26 +112,22 @@ export async function simulateDay() {
 
 // Import/Export API
 export async function importItems(csvFile: File) {
-  const formData = new FormData();
-  formData.append('file', csvFile);
+  // Mock implementation
+  console.log('Importing file:', csvFile.name);
   
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/import/items`, {
-      method: 'POST',
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      return { error: errorData.message || 'An error occurred' };
-    }
-    
-    const data = await response.json();
-    return { data };
-  } catch (error) {
-    console.error('API request failed:', error);
-    return { error: 'Network error' };
-  }
+  // Simulate API delay
+  return new Promise<ApiResponse<any>>(resolve => {
+    setTimeout(() => {
+      resolve({
+        data: {
+          success: true,
+          itemsProcessed: 24,
+          itemsAdded: 18,
+          itemsUpdated: 6
+        }
+      });
+    }, 1500);
+  });
 }
 
 // Logging API

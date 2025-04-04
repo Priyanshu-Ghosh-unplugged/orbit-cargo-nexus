@@ -1,30 +1,27 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Session, User as SupabaseUser } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
-interface Profile {
+export interface User {
   id: string;
-  name: string;
   email: string;
+  name: string;
   role: string;
   bio?: string;
-  avatar_url?: string;
-  preferred_module?: string;
-}
-
-export interface User extends SupabaseUser {
-  name?: string;
-  role?: string;
-  bio?: string;
   avatarUrl?: string;
-  profile?: Profile;
+  profile?: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    bio?: string;
+    avatar_url?: string;
+    preferred_module?: string;
+  };
 }
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -42,129 +39,64 @@ export const useAuth = () => {
   return context;
 };
 
+// Mock user data for demonstration
+const MOCK_USER: User = {
+  id: 'mock-user-id',
+  email: 'astronaut@iss.space',
+  name: 'Commander Davis',
+  role: 'astronaut',
+  bio: 'Astronaut and cargo specialist with ISS experience.',
+  avatarUrl: '/placeholder.svg',
+  profile: {
+    id: 'mock-user-id',
+    name: 'Commander Davis',
+    email: 'astronaut@iss.space',
+    role: 'astronaut',
+    bio: 'Astronaut and cargo specialist with ISS experience.',
+    avatar_url: '/placeholder.svg',
+    preferred_module: 'Columbus'
+  }
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  // Fetch user profile data
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return null;
-      }
-
-      return data as Profile;
-    } catch (error) {
-      console.error('Unexpected error fetching profile:', error);
-      return null;
-    }
-  };
-
-  // Refresh user profile data
-  const refreshProfile = async () => {
-    if (!user) return;
-    
-    const profile = await fetchUserProfile(user.id);
-    if (profile) {
-      setUser({
-        ...user,
-        name: profile.name,
-        role: profile.role,
-        bio: profile.bio,
-        avatarUrl: profile.avatar_url,
-        profile: profile
-      });
-    }
-  };
-
-  // Initialize auth state
+  // Initialize auth state with mock data
   useEffect(() => {
-    const initializeAuth = async () => {
-      setIsLoading(true);
-      
-      // Set up auth state listener
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, currentSession) => {
-          setSession(currentSession);
-          
-          if (currentSession?.user) {
-            const profile = await fetchUserProfile(currentSession.user.id);
-            setUser({
-              ...currentSession.user,
-              name: profile?.name,
-              role: profile?.role,
-              bio: profile?.bio,
-              avatarUrl: profile?.avatar_url,
-              profile: profile || undefined
-            });
-          } else {
-            setUser(null);
-          }
-          
-          setIsLoading(false);
-        }
-      );
-
-      // Check for existing session
-      const { data: { session: existingSession } } = await supabase.auth.getSession();
-      setSession(existingSession);
-
-      if (existingSession?.user) {
-        const profile = await fetchUserProfile(existingSession.user.id);
-        setUser({
-          ...existingSession.user,
-          name: profile?.name,
-          role: profile?.role,
-          bio: profile?.bio,
-          avatarUrl: profile?.avatar_url,
-          profile: profile || undefined
-        });
-      }
-      
-      setIsLoading(false);
-      
-      return () => {
-        subscription.unsubscribe();
-      };
-    };
-
-    initializeAuth();
+    const storedAuth = localStorage.getItem('iss_cargo_auth');
+    
+    if (storedAuth) {
+      setUser(JSON.parse(storedAuth));
+    }
+    
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
+      // Mock login - in a real app, this would call your auth service
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
       
-      if (error) {
-        toast({
-          title: "Login failed",
-          description: error.message,
-          variant: "destructive"
-        });
-        throw error;
-      }
+      // Auto-login for demo purposes
+      setUser(MOCK_USER);
+      localStorage.setItem('iss_cargo_auth', JSON.stringify(MOCK_USER));
       
       toast({
         title: "Login successful",
-        description: "Welcome back!"
+        description: "Welcome back, Commander Davis!"
       });
       
     } catch (error) {
       console.error('Login error:', error);
+      toast({
+        title: "Login failed",
+        description: "Invalid credentials",
+        variant: "destructive"
+      });
       throw error;
     } finally {
       setIsLoading(false);
@@ -175,24 +107,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name
-          }
-        }
-      });
+      // Mock registration - in a real app, this would call your auth service
+      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
       
-      if (error) {
-        toast({
-          title: "Registration failed",
-          description: error.message,
-          variant: "destructive"
-        });
-        throw error;
-      }
+      const newUser = {
+        ...MOCK_USER,
+        name,
+        email,
+        profile: {
+          ...MOCK_USER.profile,
+          name,
+          email
+        }
+      };
+      
+      setUser(newUser);
+      localStorage.setItem('iss_cargo_auth', JSON.stringify(newUser));
       
       toast({
         title: "Registration successful",
@@ -201,6 +131,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
     } catch (error) {
       console.error('Registration error:', error);
+      toast({
+        title: "Registration failed",
+        description: "Could not create account",
+        variant: "destructive"
+      });
       throw error;
     } finally {
       setIsLoading(false);
@@ -209,16 +144,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      // Mock logout
+      await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
       
-      if (error) {
-        toast({
-          title: "Sign out failed",
-          description: error.message,
-          variant: "destructive"
-        });
-        throw error;
-      }
+      setUser(null);
+      localStorage.removeItem('iss_cargo_auth');
       
       toast({
         title: "Signed out",
@@ -227,12 +157,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
     } catch (error) {
       console.error('Logout error:', error);
+      toast({
+        title: "Sign out failed",
+        description: "Could not sign out",
+        variant: "destructive"
+      });
       throw error;
     }
   };
 
+  const refreshProfile = async () => {
+    if (!user) return;
+    
+    // In a real app, you would fetch the latest profile data
+    // For this mock version, we'll just use what we have
+    toast({
+      title: "Profile refreshed",
+      description: "Latest profile data loaded"
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, login, register, logout, refreshProfile }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
