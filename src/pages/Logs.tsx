@@ -18,9 +18,10 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from '@/components/ui/calendar';
 import { Label } from '@/components/ui/label';
-import { Clock, Search, Download, Filter } from 'lucide-react';
+import { Clock, Search, Download, Filter, Package, BarChart } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { 
   Popover, 
@@ -107,7 +108,7 @@ const Logs = () => {
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return format(date, 'yyyy-MM-dd HH:mm:ss');
+    return format(date, 'MM-dd-yyyy HH:mm:ss');
   };
   
   const getActionColor = (action: string) => {
@@ -124,6 +125,18 @@ const Logs = () => {
         return 'bg-gray-100 text-gray-800';
     }
   };
+  
+  // Mock data for accessed cargoes
+  const accessedCargoes = [
+    { id: 1, name: 'Medical Kit #42', accessCount: 28, lastAccessed: '04-03-2025', location: 'Columbus', itemId: 'MED-042' },
+    { id: 2, name: 'Food Container F-22', accessCount: 24, lastAccessed: '04-02-2025', location: 'Unity', itemId: 'FOOD-022' },
+    { id: 3, name: 'Tool Set T-15', accessCount: 18, lastAccessed: '04-01-2025', location: 'Destiny', itemId: 'TOOL-015' },
+    { id: 4, name: 'Scientific Equipment S-08', accessCount: 15, lastAccessed: '03-30-2025', location: 'Kibo', itemId: 'SCI-008' },
+    { id: 5, name: 'Personal Items P-03', accessCount: 13, lastAccessed: '03-29-2025', location: 'Crew Quarters', itemId: 'PERS-003' },
+    { id: 6, name: 'Camera Equipment C-8', accessCount: 12, lastAccessed: '03-28-2025', location: 'Harmony', itemId: 'CAM-008' },
+    { id: 7, name: 'Maintenance Kit M-11', accessCount: 11, lastAccessed: '03-27-2025', location: 'Zvezda', itemId: 'MAINT-011' },
+    { id: 8, name: 'Water Filter W-4', accessCount: 9, lastAccessed: '03-26-2025', location: 'Node 3', itemId: 'FILT-004' },
+  ];
 
   return (
     <div className="space-y-8">
@@ -155,7 +168,7 @@ const Logs = () => {
                       variant="outline"
                       className="justify-start text-left font-normal"
                     >
-                      {startDate ? format(startDate, 'PPP') : <span>From date</span>}
+                      {startDate ? format(startDate, 'MM-dd-yyyy') : <span>From date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -164,6 +177,7 @@ const Logs = () => {
                       selected={startDate}
                       onSelect={setStartDate}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -174,7 +188,7 @@ const Logs = () => {
                       variant="outline"
                       className="justify-start text-left font-normal"
                     >
-                      {endDate ? format(endDate, 'PPP') : <span>To date</span>}
+                      {endDate ? format(endDate, 'MM-dd-yyyy') : <span>To date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -183,6 +197,7 @@ const Logs = () => {
                       selected={endDate}
                       onSelect={setEndDate}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -327,73 +342,123 @@ const Logs = () => {
           <CardDescription>Quick insights from activity patterns</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="space-y-3">
-              <h3 className="font-medium">Most Active Users</h3>
-              <ul className="space-y-2">
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Astronaut Zhang</span>
-                  <span className="text-sm">42 actions</span>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Astronaut Miller</span>
-                  <span className="text-sm">38 actions</span>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Astronaut Kumar</span>
-                  <span className="text-sm">29 actions</span>
-                </li>
-              </ul>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="font-medium">Activity Distribution</h3>
-              <ul className="space-y-2">
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Placement</span>
-                  <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-green-500 h-full" style={{ width: '35%' }}></div>
+          <Tabs defaultValue="summary">
+            <TabsList className="mb-4">
+              <TabsTrigger value="summary">Summary</TabsTrigger>
+              <TabsTrigger value="accessedCargoes">Accessed Cargoes</TabsTrigger>
+            </TabsList>
+            <TabsContent value="summary">
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <h3 className="font-medium">Most Active Users</h3>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Astronaut Zhang</span>
+                      <span className="text-sm">42 actions</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Astronaut Miller</span>
+                      <span className="text-sm">38 actions</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Astronaut Kumar</span>
+                      <span className="text-sm">29 actions</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="space-y-3">
+                  <h3 className="font-medium">Activity Distribution</h3>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Placement</span>
+                      <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
+                        <div className="bg-green-500 h-full" style={{ width: '35%' }}></div>
+                      </div>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Retrieval</span>
+                      <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
+                        <div className="bg-blue-500 h-full" style={{ width: '42%' }}></div>
+                      </div>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Rearrangement</span>
+                      <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
+                        <div className="bg-purple-500 h-full" style={{ width: '15%' }}></div>
+                      </div>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Disposal</span>
+                      <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
+                        <div className="bg-orange-500 h-full" style={{ width: '8%' }}></div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="space-y-3">
+                  <h3 className="font-medium">Most Accessed Items</h3>
+                  <ul className="space-y-2">
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Medical Kit #42</span>
+                      <span className="text-sm">24 accesses</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Food Container F-22</span>
+                      <span className="text-sm">18 accesses</span>
+                    </li>
+                    <li className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Tool Set T-15</span>
+                      <span className="text-sm">15 accesses</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="accessedCargoes">
+              <div className="bg-white rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Access Count</TableHead>
+                      <TableHead>Last Accessed</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {accessedCargoes.map((cargo) => (
+                      <TableRow key={cargo.id}>
+                        <TableCell className="font-mono text-sm">{cargo.itemId}</TableCell>
+                        <TableCell className="font-medium">{cargo.name}</TableCell>
+                        <TableCell>{cargo.location}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span>{cargo.accessCount}</span>
+                            <div className="h-2 w-16 bg-muted rounded-full overflow-hidden">
+                              <div 
+                                className="h-full bg-blue-500" 
+                                style={{ width: `${(cargo.accessCount / 30) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{cargo.lastAccessed}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <div className="p-4 bg-accent/10 border-t">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <BarChart className="h-4 w-4" />
+                    <span>Showing most frequently accessed cargo items from the past 30 days</span>
                   </div>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Retrieval</span>
-                  <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-blue-500 h-full" style={{ width: '42%' }}></div>
-                  </div>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Rearrangement</span>
-                  <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-purple-500 h-full" style={{ width: '15%' }}></div>
-                  </div>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Disposal</span>
-                  <div className="w-24 bg-muted h-2 rounded-full overflow-hidden">
-                    <div className="bg-orange-500 h-full" style={{ width: '8%' }}></div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="font-medium">Most Accessed Items</h3>
-              <ul className="space-y-2">
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Medical Kit #42</span>
-                  <span className="text-sm">24 accesses</span>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Food Container F-22</span>
-                  <span className="text-sm">18 accesses</span>
-                </li>
-                <li className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Tool Set T-15</span>
-                  <span className="text-sm">15 accesses</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

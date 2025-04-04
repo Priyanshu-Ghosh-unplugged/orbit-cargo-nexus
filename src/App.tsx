@@ -16,6 +16,7 @@ import Layout from "./components/layout/Layout";
 import CargoCategorization from "./pages/CargoCategorization";
 import WasteManagement from "./pages/WasteManagement";
 import StorageEfficiency from "./pages/StorageEfficiency";
+import ModuleDetails from "./pages/ModuleDetails";
 import Logs from "./pages/Logs";
 import ImportExport from "./pages/ImportExport";
 
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/cargo" element={<CargoCategorization />} />
                 <Route path="/waste" element={<WasteManagement />} />
                 <Route path="/storage" element={<StorageEfficiency />} />
+                <Route path="/module/:moduleId" element={<ModuleDetails />} />
                 <Route path="/logs" element={<Logs />} />
                 <Route path="/import-export" element={<ImportExport />} />
               </Route>

@@ -7,12 +7,21 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Clock, Calendar, Package, Truck, RefreshCw } from 'lucide-react';
 import { simulateDay, getMockWasteData } from '@/services/api';
+import { Link } from 'react-router-dom';
+import { Progress } from '@/components/ui/progress';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSimulating, setIsSimulating] = useState(false);
   const wasteData = getMockWasteData();
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric'
+  });
+  const formattedTime = currentDate.toISOString().split('T')[1].substring(0, 8);
   
   const handleTimeSimulation = async () => {
     setIsSimulating(true);
@@ -51,8 +60,8 @@ const Dashboard = () => {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{new Date().toISOString().split('T')[0]}</div>
-            <p className="text-xs text-muted-foreground">UTC time</p>
+            <div className="text-2xl font-bold">{formattedDate}</div>
+            <p className="text-xs text-muted-foreground">{formattedTime} UTC</p>
           </CardContent>
         </Card>
         
@@ -67,33 +76,59 @@ const Dashboard = () => {
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Cargo Items</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2,487</div>
-            <p className="text-xs text-muted-foreground">Active inventory items</p>
-          </CardContent>
-        </Card>
+        <Link to="/cargo" className="block">
+          <Card className="h-full transition-all hover:shadow-md hover:bg-accent/10">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Cargo Items</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">2,487</div>
+              <p className="text-xs text-muted-foreground">Active inventory items</p>
+            </CardContent>
+          </Card>
+        </Link>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Waste Ready</CardTitle>
-            <Truck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{wasteData.total} kg</div>
-            <p className="text-xs text-muted-foreground">Next pickup: {wasteData.nextPickup}</p>
-          </CardContent>
-        </Card>
+        <Link to="/waste" className="block">
+          <Card className="h-full transition-all hover:shadow-md hover:bg-accent/10">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Waste Ready</CardTitle>
+              <Truck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{wasteData.total} kg</div>
+              <p className="text-xs text-muted-foreground">Next pickup: {wasteData.nextPickup}</p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
       
       {/* ISS Visualization */}
       <Card className="overflow-hidden">
+        <CardHeader>
+          <CardTitle>Station Overview</CardTitle>
+          <CardDescription>Current storage and waste efficiency</CardDescription>
+        </CardHeader>
         <CardContent className="p-6">
           <ISSCrossSection />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <h3 className="text-sm font-medium mb-2">Storage Efficiency</h3>
+              <div className="flex items-center gap-4">
+                <Progress value={72} className="h-2 flex-1" />
+                <span className="text-sm font-medium">72%</span>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium mb-2">Waste Production Score</h3>
+              <div className="flex items-center gap-4">
+                <Progress value={68} className="h-2 flex-1 bg-muted" />
+                <span className="text-sm font-medium">68%</span>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
       

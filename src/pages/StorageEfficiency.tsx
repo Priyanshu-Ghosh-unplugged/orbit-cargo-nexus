@@ -1,4 +1,5 @@
 
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Table, 
@@ -12,10 +13,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from '@/components/ui/progress';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { getMockStorageEfficiency } from '@/services/api';
-import { BarChart2, AlertTriangle, Lightbulb } from 'lucide-react';
+import { BarChart2, AlertTriangle, Lightbulb, Package } from 'lucide-react';
 
 const StorageEfficiency = () => {
   const efficiencyData = getMockStorageEfficiency();
+  const navigate = useNavigate();
   
   // Helper function to get a color based on efficiency value
   const getEfficiencyColor = (value: number) => {
@@ -29,6 +31,15 @@ const StorageEfficiency = () => {
     name: module.name,
     efficiency: module.efficiency,
   }));
+  
+  // Mock category occupancy data
+  const categoryOccupancy = [
+    { category: "Food Supplies", percentage: 34 },
+    { category: "Medical Equipment", percentage: 19 },
+    { category: "Scientific Instruments", percentage: 27 },
+    { category: "Maintenance Tools", percentage: 12 },
+    { category: "Personal Items", percentage: 8 }
+  ];
 
   return (
     <div className="space-y-8">
@@ -138,11 +149,12 @@ const StorageEfficiency = () => {
                 <TableHead>Efficiency Score</TableHead>
                 <TableHead>Visual</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {efficiencyData.byModule.map((module) => (
-                <TableRow key={module.name}>
+                <TableRow key={module.name} className="cursor-pointer hover:bg-accent/50" onClick={() => navigate(`/module/${module.name}`)}>
                   <TableCell className="font-medium">{module.name}</TableCell>
                   <TableCell>{module.efficiency}%</TableCell>
                   <TableCell>
@@ -163,6 +175,17 @@ const StorageEfficiency = () => {
                     ) : (
                       <span className="text-red-500 text-sm font-medium">Needs attention</span>
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <button 
+                      className="text-primary text-sm hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/module/${module.name}`);
+                      }}
+                    >
+                      View details
+                    </button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -221,21 +244,23 @@ const StorageEfficiency = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Space Utilization</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Category Occupancy
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Storage areas with lowest space utilization that can be repurposed.
+              Percentage of total cargo by category
             </p>
-            <ul className="space-y-2">
-              {[
-                { location: 'Columbus/D7', usage: 23 },
-                { location: 'Harmony/A1', usage: 31 },
-                { location: 'Kibo/E4', usage: 35 },
-              ].map((area) => (
-                <li key={area.location} className="flex justify-between items-center">
-                  <p className="font-medium">{area.location}</p>
-                  <Progress value={area.usage} className="h-2 w-1/3" />
+            <ul className="space-y-3">
+              {categoryOccupancy.map((category) => (
+                <li key={category.category} className="flex flex-col">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-sm">{category.category}</span>
+                    <span className="text-sm font-medium">{category.percentage}%</span>
+                  </div>
+                  <Progress value={category.percentage} className="h-2" />
                 </li>
               ))}
             </ul>
