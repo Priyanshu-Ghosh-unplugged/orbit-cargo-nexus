@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import UserProfile from '../profile/UserProfile';
 
 interface NavItemProps {
   to: string;
@@ -41,6 +42,7 @@ const NavItem = ({ to, icon: Icon, label, isCollapsed }: NavItemProps) => (
 const Sidebar = () => {
   const { user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const navItems = [
     { to: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -61,7 +63,7 @@ const Sidebar = () => {
       <div className="flex items-center justify-between px-4 py-3">
         {!isCollapsed && (
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
-            Orbit Cargo
+            VyomSetu
           </h1>
         )}
         <Button 
@@ -94,10 +96,13 @@ const Sidebar = () => {
         ))}
       </nav>
 
-      <div className={cn(
-        'p-4 flex items-center gap-2 bg-accent/50 mt-auto',
-        isCollapsed && 'justify-center'
-      )}>
+      <div 
+        className={cn(
+          'p-4 flex items-center gap-2 bg-accent/50 mt-auto cursor-pointer hover:bg-accent/80 transition-colors',
+          isCollapsed && 'justify-center'
+        )}
+        onClick={() => setProfileOpen(true)}
+      >
         <div className="h-8 w-8 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
           {user?.name.charAt(0)}
         </div>
@@ -108,6 +113,8 @@ const Sidebar = () => {
           </div>
         )}
       </div>
+      
+      <UserProfile open={profileOpen} onOpenChange={setProfileOpen} />
     </div>
   );
 };

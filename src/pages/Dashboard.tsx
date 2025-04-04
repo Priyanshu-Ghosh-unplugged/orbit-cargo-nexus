@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import ISSCrossSection from '@/components/iss/CrossSection';
 import { Button } from '@/components/ui/button';
@@ -14,14 +14,25 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSimulating, setIsSimulating] = useState(false);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const wasteData = getMockWasteData();
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString('en-US', {
+  
+  // Update the time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, []);
+  
+  const formattedDate = currentDateTime.toLocaleDateString('en-US', {
     month: '2-digit',
     day: '2-digit',
     year: 'numeric'
   });
-  const formattedTime = currentDate.toISOString().split('T')[1].substring(0, 8);
+  
+  const formattedTime = currentDateTime.toISOString().split('T')[1].substring(0, 8);
   
   const handleTimeSimulation = async () => {
     setIsSimulating(true);
@@ -113,14 +124,6 @@ const Dashboard = () => {
           <ISSCrossSection />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <div>
-              <h3 className="text-sm font-medium mb-2">Storage Efficiency</h3>
-              <div className="flex items-center gap-4">
-                <Progress value={72} className="h-2 flex-1" />
-                <span className="text-sm font-medium">72%</span>
-              </div>
-            </div>
-            
             <div>
               <h3 className="text-sm font-medium mb-2">Waste Production Score</h3>
               <div className="flex items-center gap-4">

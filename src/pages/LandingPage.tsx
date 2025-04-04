@@ -1,4 +1,3 @@
-
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,7 +11,7 @@ const LandingPage = () => {
       {/* Header */}
       <header className="px-4 py-6 flex items-center justify-between border-b border-border">
         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
-          Orbit Cargo Nexus
+          VyomSetu
         </h1>
         <div className="flex items-center gap-4">
           {user ? (
@@ -64,22 +63,18 @@ const LandingPage = () => {
                 className="w-full h-full"
                 style={{ filter: 'drop-shadow(0px 0px 10px rgba(155, 135, 245, 0.3))' }}
               >
-                {/* Simplified ISS visualization for landing page */}
                 <line x1="100" y1="300" x2="700" y2="300" stroke="hsl(var(--primary))" strokeWidth="8" />
                 
-                {/* Solar panels */}
                 <rect x="100" y="150" width="100" height="40" fill="#525252" />
                 <rect x="100" y="410" width="100" height="40" fill="#525252" />
                 <rect x="600" y="150" width="100" height="40" fill="#525252" />
                 <rect x="600" y="410" width="100" height="40" fill="#525252" />
                 
-                {/* Main modules */}
                 <rect x="250" y="260" width="70" height="40" fill="hsl(var(--secondary))" stroke="hsl(var(--primary))" strokeWidth="2" rx="5" />
                 <rect x="330" y="300" width="70" height="40" fill="hsl(var(--secondary))" stroke="hsl(var(--primary))" strokeWidth="2" rx="5" />
                 <rect x="410" y="260" width="70" height="40" fill="hsl(var(--secondary))" stroke="hsl(var(--primary))" strokeWidth="2" rx="5" />
                 <rect x="490" y="300" width="70" height="40" fill="hsl(var(--secondary))" stroke="hsl(var(--primary))" strokeWidth="2" rx="5" />
                 
-                {/* Glow effects */}
                 <circle cx="400" cy="300" r="150" fill="url(#glowGradient)" opacity="0.2" />
               </svg>
               
@@ -163,7 +158,7 @@ const LandingPage = () => {
             <div>
               <h2 className="text-3xl font-bold mb-4">Ready to Optimize Space Station Operations?</h2>
               <p className="text-lg mb-6">
-                Join space agencies worldwide using Orbit Cargo Nexus to streamline 
+                Join space agencies worldwide using VyomSetu to streamline 
                 payload management and improve operational efficiency.
               </p>
               <Button
@@ -194,7 +189,7 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <h2 className="text-xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
-                Orbit Cargo Nexus
+                VyomSetu
               </h2>
               <p className="text-muted-foreground">
                 The premier solution for space station payload management.
@@ -232,7 +227,7 @@ const LandingPage = () => {
           </div>
           
           <div className="mt-12 pt-8 border-t border-border text-center text-muted-foreground">
-            <p>© {new Date().getFullYear()} Orbit Cargo Nexus. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} VyomSetu. All rights reserved.</p>
           </div>
         </div>
       </footer>

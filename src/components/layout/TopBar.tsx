@@ -36,7 +36,7 @@ const TopBar = () => {
   return (
     <header className="bg-card border-b border-border px-4 py-3 flex justify-between items-center">
       <div>
-        <h1 className="text-xl font-semibold">ISS Cargo Management</h1>
+        <h1 className="text-xl font-semibold">VyomSetu</h1>
         <p className="text-sm text-muted-foreground">Optimize your space station operations</p>
       </div>
       
