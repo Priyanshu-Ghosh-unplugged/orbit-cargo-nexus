@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   Dialog, 
@@ -29,10 +28,10 @@ const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    bio: user?.bio || 'Astronaut and cargo specialist with 5 years of ISS experience.',
-    preferredModule: user?.profile?.preferred_module || 'Columbus',
+    name: '',
+    email: '',
+    bio: 'Astronaut and cargo specialist with 5 years of ISS experience.',
+    preferredModule: 'Columbus',
     notificationPreferences: {
       email: true,
       app: true,
@@ -65,7 +64,14 @@ const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
   };
 
   const handleSaveProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Not authenticated",
+        description: "You need to be logged in to update your profile.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     try {
       const { error } = await supabase
@@ -102,6 +108,10 @@ const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
     navigate('/login');
   };
 
+  if (!user) {
+    return null; // Don't render the profile dialog if user is not available
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -111,11 +121,11 @@ const UserProfile = ({ open, onOpenChange }: UserProfileProps) => {
 
         <div className="flex flex-col items-center mb-6">
           <Avatar className="h-24 w-24 mb-4">
-            <AvatarImage src={user?.avatarUrl} alt={user?.name || ''} />
-            <AvatarFallback className="text-2xl">{user?.name?.charAt(0) || 'U'}</AvatarFallback>
+            <AvatarImage src={user.avatarUrl} alt={user.name || 'User'} />
+            <AvatarFallback className="text-2xl">{user.name ? user.name.charAt(0) : 'U'}</AvatarFallback>
           </Avatar>
-          <h2 className="text-lg font-bold">{user?.name || 'User'}</h2>
-          <p className="text-muted-foreground">{user?.role || 'Astronaut'}</p>
+          <h2 className="text-lg font-bold">{user.name || 'User'}</h2>
+          <p className="text-muted-foreground">{user.role || 'Astronaut'}</p>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">

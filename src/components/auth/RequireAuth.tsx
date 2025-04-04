@@ -18,8 +18,17 @@ const RequireAuth = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user, isLoading, navigate, location]);
 
-  // Show nothing while loading or redirecting
-  if (isLoading || !user) {
+  // Show loading indicator while checking authentication
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  // Wait for auth check to complete before rendering anything
+  if (!user) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>

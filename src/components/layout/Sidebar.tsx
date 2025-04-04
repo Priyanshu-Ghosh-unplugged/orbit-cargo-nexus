@@ -45,7 +45,7 @@ const Sidebar = () => {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const navItems = [
-    { to: '/dashboard', icon: Home, label: 'Dashboard' },
+    { to: '/', icon: Home, label: 'Dashboard' },
     { to: '/cargo', icon: Package, label: 'Cargo Management' },
     { to: '/waste', icon: Trash2, label: 'Waste Management' },
     { to: '/storage', icon: BarChart2, label: 'Storage Efficiency' },
@@ -76,11 +76,11 @@ const Sidebar = () => {
         </Button>
       </div>
 
-      {!isCollapsed && (
+      {!isCollapsed && user && (
         <div className="px-4 py-2 mb-6">
           <p className="text-xs text-muted-foreground">Welcome,</p>
-          <p className="font-semibold">{user?.name}</p>
-          <p className="text-xs capitalize text-muted-foreground">{user?.role}</p>
+          <p className="font-semibold">{user.name || 'User'}</p>
+          <p className="text-xs capitalize text-muted-foreground">{user.role || 'Astronaut'}</p>
         </div>
       )}
 
@@ -104,12 +104,13 @@ const Sidebar = () => {
         onClick={() => setProfileOpen(true)}
       >
         <div className="h-8 w-8 flex-shrink-0 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
-          {user?.name.charAt(0)}
+          {/* Add null check for user and user.name */}
+          {user?.name ? user.name.charAt(0) : 'U'}
         </div>
         {!isCollapsed && (
           <div className="truncate">
-            <p className="text-sm font-medium truncate">{user?.name}</p>
-            <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            <p className="text-sm font-medium truncate">{user?.name || 'User'}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email || 'user@example.com'}</p>
           </div>
         )}
       </div>
