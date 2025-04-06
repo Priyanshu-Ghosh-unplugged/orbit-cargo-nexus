@@ -1,3 +1,4 @@
+
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -189,9 +190,16 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h2 className="text-xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
-                VyomSetu
-              </h2>
+              <div className="flex items-center gap-2 mb-4">
+                <img 
+                  src="/lovable-uploads/ac6af88d-fd0f-408c-a07c-95d193802de5.png" 
+                  alt="VyomSetu Logo" 
+                  className="h-10 w-10"
+                />
+                <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
+                  VyomSetu
+                </h2>
+              </div>
               <p className="text-muted-foreground">
                 The premier solution for space station payload management.
               </p>
