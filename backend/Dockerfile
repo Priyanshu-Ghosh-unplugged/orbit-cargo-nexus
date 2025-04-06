@@ -1,19 +1,25 @@
+# Use Ubuntu 22.04 as base image
+FROM ubuntu:22.04
 
-FROM python:3.9-slim
-
-WORKDIR /app
-
-# Copy requirements file
-COPY requirements.txt .
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && \
+    apt-get install -y python3 python3-pip curl && \
+    apt-get clean
 
-# Copy the rest of the application
-COPY . .
+# Set working directory
+WORKDIR /app
 
-# Expose the port the app will run on
-EXPOSE 5000
+# Copy backend source code
+COPY . /app
 
-# Command to run the application
-CMD ["python", "app.py"]
+# Install Python dependencies (if any)
+RUN if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+
+# Expose port 8000
+EXPOSE 8000
+
+# Start the application (adjust if you use something other than main.py)
+CMD ["python3", "main.py"]
