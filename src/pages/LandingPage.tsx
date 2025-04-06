@@ -47,12 +47,6 @@ const LandingPage = () => {
                 Learn More
               </Button>
             </div>
-            
-            <div className="pt-4">
-              <p className="text-sm text-muted-foreground">
-                Trusted by NASA, ESA, ISRO and other space agencies worldwide
-              </p>
-            </div>
           </div>
           
           <div className="relative">
