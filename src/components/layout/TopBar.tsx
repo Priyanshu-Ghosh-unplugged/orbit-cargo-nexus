@@ -35,9 +35,16 @@ const TopBar = () => {
   
   return (
     <header className="bg-card border-b border-border px-4 py-3 flex justify-between items-center">
-      <div>
-        <h1 className="text-xl font-semibold">VyomSetu</h1>
-        <p className="text-sm text-muted-foreground">Optimize your space station operations</p>
+      <div className="flex items-center gap-2">
+        <img 
+          src="/lovable-uploads/ac6af88d-fd0f-408c-a07c-95d193802de5.png" 
+          alt="VyomSetu Logo" 
+          className="h-8 w-8"
+        />
+        <div>
+          <h1 className="text-xl font-semibold">VyomSetu</h1>
+          <p className="text-sm text-muted-foreground">Optimize your space station operations</p>
+        </div>
       </div>
       
       <div className="flex items-center gap-4">

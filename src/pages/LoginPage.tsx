@@ -38,9 +38,11 @@ const LoginPage = () => {
           <CardHeader className="space-y-1">
             <div className="flex justify-center mb-4">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold">VS</span>
-                </div>
+                <img 
+                  src="/lovable-uploads/ac6af88d-fd0f-408c-a07c-95d193802de5.png" 
+                  alt="VyomSetu Logo" 
+                  className="h-10 w-10"
+                />
                 <h1 className="text-2xl font-bold">VyomSetu</h1>
               </div>
             </div>

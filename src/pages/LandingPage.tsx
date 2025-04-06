@@ -10,9 +10,16 @@ const LandingPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="px-4 py-6 flex items-center justify-between border-b border-border">
-        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
-          VyomSetu
-        </h1>
+        <div className="flex items-center gap-2">
+          <img 
+            src="/lovable-uploads/ac6af88d-fd0f-408c-a07c-95d193802de5.png" 
+            alt="VyomSetu Logo" 
+            className="h-10 w-10"
+          />
+          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">
+            VyomSetu
+          </h1>
+        </div>
         <div className="flex items-center gap-4">
           {user ? (
             <Button onClick={() => navigate('/dashboard')}>Dashboard</Button>
