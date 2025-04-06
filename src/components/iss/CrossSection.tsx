@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Progress } from '@/components/ui/progress';
 import { getMockIssOccupancy } from '@/services/api';
+import { modulePositions } from './moduleLayout';
+
 
 interface ModuleData {
   name: string;
@@ -13,6 +15,44 @@ interface ModuleData {
 
 const ISSCrossSection = () => {
   const [selectedModule, setSelectedModule] = useState<ModuleData | null>(null);
+  const [zoomed, setZoomed] = useState(false);
+  const [transformOrigin, setTransformOrigin] = useState('center center');
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [dragged, setDragged] = useState(false);
+
+
+  const handleMouseDown = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    if (!zoomed) return;
+    setIsDragging(true);
+    setDragged(false); // reset dragged
+    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+  };
+  
+  
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    if (!isDragging || !zoomed || !dragStart) return;
+    const newX = e.clientX - dragStart.x;
+    const newY = e.clientY - dragStart.y;
+  
+    // Only set dragged true when movement is significant
+    if (Math.abs(newX - offset.x) > 2 || Math.abs(newY - offset.y) > 2) {
+      setDragged(true);
+    }
+  
+    setOffset({ x: newX, y: newY });
+  };
+  
+  
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+  
+
+
+
   const issData = getMockIssOccupancy();
 
   // Helper function to determine color based on occupancy level
@@ -25,64 +65,104 @@ const ISSCrossSection = () => {
   return (
     <div className="flex flex-col">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">ISS Cross Section</h2>
+        <h2 className="text-2xl font-bold mb-2">ISS at a Glance</h2>
         <p className="text-muted-foreground">Interactive visualization of module occupancy</p>
       </div>
       
+
+
       <div className="relative w-full h-[500px] bg-black/30 rounded-xl overflow-hidden border border-accent p-4">
         {/* SVG cross-section of ISS */}
         <svg 
-          viewBox="0 0 1000 400" 
-          className="w-full h-full"
-          style={{ filter: 'drop-shadow(0px 0px 10px rgba(155, 135, 245, 0.3))' }}
+          viewBox="0 0 1000 400"
+          className="w-full h-full transition-transform duration-500 ease-in-out"
+          style={{
+            filter: 'drop-shadow(0px 0px 10px rgba(155, 135, 245, 0.3))',
+            backgroundImage: "url('/iss_main.png')",
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoomed ? 2 : 1})`,
+            transformOrigin: transformOrigin,
+            cursor: zoomed ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in',
+          }}
+          onClick={(e) => {
+            if (dragged) return; // Don't zoom if dragging
+          
+            if (!zoomed) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const offsetX = e.clientX - rect.left;
+              const offsetY = e.clientY - rect.top;
+              const percentX = (offsetX / rect.width) * 100;
+              const percentY = (offsetY / rect.height) * 100;
+              setTransformOrigin(`${percentX}% ${percentY}%`);
+              setZoomed(true);
+            } else {
+              setZoomed(false);
+              setOffset({ x: 0, y: 0 });
+            }
+          }}
+          
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
         >
           {/* Main truss structure */}
-          <line x1="100" y1="200" x2="900" y2="200" stroke="hsl(var(--primary))" strokeWidth="8" />
+          {/* <line x1="100" y1="200" x2="900" y2="200" stroke="hsl(var(--primary))" strokeWidth="8" /> */}
           
           {/* Solar panels */}
-          <g className="animate-pulse-glow">
+          {/* <g className="animate-pulse-glow">
             <rect x="100" y="80" width="120" height="40" fill="#525252" />
             <rect x="100" y="280" width="120" height="40" fill="#525252" />
             <rect x="780" y="80" width="120" height="40" fill="#525252" />
             <rect x="780" y="280" width="120" height="40" fill="#525252" />
-          </g>
+          </g> */}
           
           {/* Draw modules with occupancy coloring */}
           {issData.modules.map((module, index) => {
             // Calculate positions
-            const moduleWidth = 70;
-            const moduleHeight = 40;
-            const startX = 200 + index * 80;
-            const isTop = index % 2 === 0;
-            const y = isTop ? 160 : 200;
+            const { x: startX, y, rotate, width, height, fontSize } = modulePositions[module.name] || { x: 0, y: 0 };
+
+
+            const moduleWidth = width ?? 70;
+            const moduleHeight = height ?? 40;
+
             const fill = module.warning ? 'url(#warningPattern)' : 'hsl(var(--secondary))';
-            
+
             return (
-              <g key={module.id} onClick={() => setSelectedModule(module)} className="cursor-pointer hover:opacity-80 transition-opacity">
-                <rect 
-                  x={startX} 
-                  y={y} 
-                  width={moduleWidth} 
-                  height={moduleHeight} 
+              <g
+                key={module.id}
+                onClick={() => setSelectedModule(module)}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                transform={rotate ? `rotate(90, ${startX + moduleWidth / 2}, ${y + moduleHeight / 2})` : ''}
+              >
+                <rect
+                  x={startX}
+                  y={y}
+                  width={moduleWidth}
+                  height={moduleHeight}
                   fill={fill}
                   stroke="hsl(var(--primary))"
-                  strokeWidth="2"
+                  strokeWidth="1"
                   rx="5"
                   className="interactive-element"
                 />
-                <text 
-                  x={startX + moduleWidth/2} 
-                  y={y + moduleHeight/2} 
-                  textAnchor="middle" 
+                <text
+                  x={startX + moduleWidth / 2}
+                  y={y + moduleHeight / 2}
+                  textAnchor="middle"
                   alignmentBaseline="middle"
                   fill="white"
-                  fontSize="12"
-                >{module.name}</text>
-                <circle 
-                  cx={startX + moduleWidth - 10} 
-                  cy={y + 10} 
-                  r="5" 
-                  fill={module.warning ? '#F97316' : '#10B981'} 
+                  fontSize={fontSize ?? 12}
+                >
+                  {module.name}
+                </text>
+                <circle
+                  cx={startX + moduleWidth - 6}
+                  cy={y + 10}
+                  r="2"
+                  fill={module.warning ? '#F97316' : '#10B981'}
                 />
               </g>
             );
@@ -172,5 +252,5 @@ const ISSCrossSection = () => {
     </div>
   );
 };
-
+ 
 export default ISSCrossSection;
