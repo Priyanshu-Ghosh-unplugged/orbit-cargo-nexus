@@ -120,7 +120,30 @@ const CargoCategorization = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await getPlacementRecommendations(data);
+      // Transform the form data to match the API's expected structure
+      const parsedWeight = data.weight ? parseFloat(data.weight) : undefined;
+      let parsedDimensions;
+      
+      // Parse dimensions if provided (format expected: "L x W x H")
+      if (data.dimensions) {
+        const dims = data.dimensions.split('x').map(d => parseFloat(d.trim()));
+        if (dims.length === 3 && !dims.some(isNaN)) {
+          parsedDimensions = {
+            length: dims[0],
+            width: dims[1],
+            height: dims[2]
+          };
+        }
+      }
+      
+      const apiPayload = {
+        type: data.cargoType,
+        weight: parsedWeight,
+        dimensions: parsedDimensions,
+        priority: data.priority as 'high' | 'medium' | 'low'
+      };
+      
+      const response = await getPlacementRecommendations(apiPayload);
       
       // Mock data for demo
       setTimeout(() => {
