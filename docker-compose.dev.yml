@@ -1,0 +1,47 @@
+
+version: '3'
+
+services:
+  # Frontend service for development
+  frontend-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend-dev
+
+  # Backend service for development
+  backend-dev:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - MONGODB_URI=mongodb://mongodb-dev:27017/iss_cargo_db
+      - FLASK_ENV=development
+      - PORT=8000
+    depends_on:
+      - mongodb-dev
+
+  # MongoDB service for development
+  mongodb-dev:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=iss_cargo_db
+
+volumes:
+  mongodb_dev_data:

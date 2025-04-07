@@ -1,3 +1,4 @@
+
 # Use Ubuntu 22.04 as base image
 FROM ubuntu:22.04
 
@@ -22,4 +23,4 @@ RUN if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
 EXPOSE 8000
 
 # Start the application (adjust if you use something other than main.py)
-CMD ["python3", "main.py"]
+CMD ["python3", "app.py"]

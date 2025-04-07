@@ -1,13 +1,16 @@
+
 version: '3'
 
 services:
   # Frontend service
   frontend:
-    build: ./frontend
+    build: .
     ports:
       - "80:80"
     depends_on:
       - backend
+    environment:
+      - VITE_API_BASE_URL=http://backend:8000
 
   # Backend service
   backend:
@@ -19,6 +22,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://mongodb:27017/iss_cargo_db
       - NODE_ENV=production
+      - PORT=8000
 
   # MongoDB service
   mongodb:
