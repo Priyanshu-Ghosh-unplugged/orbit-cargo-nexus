@@ -6,3 +6,10 @@ pandas==1.3.3
 numpy==1.21.2
 scikit-learn==0.24.2
 python-dotenv==0.19.0
+scipy==1.7.1
+# For Waste Management LSTM model (if implemented)
+tensorflow==2.9.0
+# For more efficient data handling
+polars==0.17.0
+# For better date handling
+python-dateutil==2.8.2

@@ -1,6 +1,6 @@
 
 // API service that would connect to the Python backend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 interface ApiResponse<T> {
   data?: T;
@@ -13,73 +13,42 @@ async function handleRequest<T>(
   options?: RequestInit
 ): Promise<ApiResponse<T>> {
   try {
-    // For demo purposes, we'll return mock data instead of making actual API calls
-    return getMockData(url);
+    const fullUrl = `${API_BASE_URL}${url}`;
+    const response = await fetch(fullUrl, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options?.headers || {})
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return { error: data.error || 'An error occurred' };
+    }
+    
+    return { data };
   } catch (error) {
     console.error('API request failed:', error);
     return { error: 'Network error' };
   }
 }
 
-// Helper function to return appropriate mock data based on the endpoint
-function getMockData<T>(url: string): ApiResponse<T> {
-  // Simulate API delay
-  // In a real implementation, this would be replaced with actual fetch calls
-  
-  if (url.includes('/api/placement')) {
-    return {
-      data: {
-        module: "Columbus", 
-        section: "C4", 
-        location: "Shelf-3", 
-        confidence: 92,
-        alternatives: [
-          {module: "Destiny", section: "D2", location: "Cabinet-1", confidence: 87},
-          {module: "Harmony", section: "H5", location: "Drawer-9", confidence: 73}
-        ]
-      } as unknown as T
-    };
-  }
-  
-  if (url.includes('/api/search')) {
-    return {
-      data: [
-        {itemId: "ISS-00123", name: "Medical Kit", module: "Columbus", section: "C2", location: "Drawer-5"},
-        {itemId: "ISS-00456", name: "Food Container", module: "Unity", section: "U3", location: "Cabinet-2"}
-      ] as unknown as T
-    };
-  }
-  
-  if (url.includes('/api/waste/identify')) {
-    return {
-      data: getMockWasteData() as unknown as T
-    };
-  }
-  
-  if (url.includes('/api/logs')) {
-    return {
-      data: [
-        {timestamp: "2025-04-03T14:32:00Z", userId: "user1", actionType: "placement", itemId: "ISS-00123", itemName: "Medical Kit", location: "Columbus/C2/Drawer-5"},
-        {timestamp: "2025-04-02T10:15:00Z", userId: "user2", actionType: "retrieval", itemId: "ISS-00456", itemName: "Food Container", location: "Unity/U3/Cabinet-2"}
-      ] as unknown as T
-    };
-  }
-  
-  // Default response
-  return {
-    data: {success: true} as unknown as T
-  };
-}
-
-// Placement Recommendations API
-export async function getPlacementRecommendations(payload: any) {
+// 1. Placement Recommendations API
+export async function getPlacementRecommendations(payload: {
+  type?: string;
+  weight?: number;
+  dimensions?: { length: number; width: number; height: number };
+  priority?: 'high' | 'medium' | 'low';
+}) {
   return handleRequest<any>('/api/placement', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
 }
 
-// Item Search and Retrieval API
+// 2. Item Search and Retrieval API
 export async function searchItems(params: { 
   itemId?: string; 
   itemName?: string; 
@@ -96,47 +65,116 @@ export async function searchItems(params: {
   });
 }
 
-// Waste Management API
+export async function retrieveItem(payload: {
+  itemId: string;
+  userId?: string;
+}) {
+  return handleRequest<any>('/api/retrieve', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function placeItem(payload: {
+  itemId: string;
+  location: {
+    module: string;
+    section: string;
+    position: string;
+  };
+  userId?: string;
+}) {
+  return handleRequest<any>('/api/place', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+// 3. Waste Management API
 export async function identifyWaste() {
   return handleRequest<any>('/api/waste/identify', {
     method: 'GET',
   });
 }
 
-// Time Simulation API
-export async function simulateDay() {
+export async function createWasteReturnPlan(payload: {
+  wasteItems: Array<{
+    id: string;
+    type: string;
+    weight: number;
+  }>;
+}) {
+  return handleRequest<any>('/api/waste/return-plan', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function completeWasteUndocking(payload: {
+  missionId: string;
+  userId?: string;
+}) {
+  return handleRequest<any>('/api/waste/complete-undocking', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+// 4. Time Simulation API
+export async function simulateDay(payload?: {
+  userId?: string;
+  days?: number;
+}) {
   return handleRequest<any>('/api/simulate/day', {
     method: 'POST',
+    body: JSON.stringify(payload || {}),
   });
 }
 
-// Import/Export API
+// 5. Import/Export API
 export async function importItems(csvFile: File) {
-  // Mock implementation
-  console.log('Importing file:', csvFile.name);
+  const formData = new FormData();
+  formData.append('file', csvFile);
   
-  // Simulate API delay
-  return new Promise<ApiResponse<any>>(resolve => {
-    setTimeout(() => {
-      resolve({
-        data: {
-          success: true,
-          itemsProcessed: 24,
-          itemsAdded: 18,
-          itemsUpdated: 6
-        }
-      });
-    }, 1500);
+  return handleRequest<any>('/api/import/items', {
+    method: 'POST',
+    body: formData,
+    headers: {} // Let the browser set the content type with boundary
   });
 }
 
-// Logging API
+export async function importContainers(csvFile: File) {
+  const formData = new FormData();
+  formData.append('file', csvFile);
+  
+  return handleRequest<any>('/api/import/containers', {
+    method: 'POST',
+    body: formData,
+    headers: {} // Let the browser set the content type with boundary
+  });
+}
+
+export async function exportArrangement(params: {
+  module?: string;
+  format?: 'csv' | 'json';
+}) {
+  const searchParams = new URLSearchParams();
+  
+  if (params.module) searchParams.append('module', params.module);
+  if (params.format) searchParams.append('format', params.format);
+  
+  return handleRequest<any>(`/api/export/arrangement?${searchParams.toString()}`, {
+    method: 'GET',
+  });
+}
+
+// 6. Logging API
 export async function getLogs(params: {
   startDate: string;
   endDate: string;
   itemId?: string;
   userId?: string;
-  actionType?: 'placement' | 'retrieval' | 'rearrangement' | 'disposal';
+  actionType?: string;
 }) {
   const searchParams = new URLSearchParams();
   
